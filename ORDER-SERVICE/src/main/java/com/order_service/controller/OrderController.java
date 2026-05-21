@@ -2,8 +2,10 @@ package com.order_service.controller;
 
 import com.order_service.entity.OrderDetails;
 import com.order_service.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,10 +14,23 @@ import java.util.List;
 @RequestMapping("/api/v1/order")
 public class OrderController {
 
+
+
     private final OrderService orderService;
 
     public OrderController (OrderService orderService){
         this.orderService = orderService;
+    }
+
+    @Autowired
+    KafkaTemplate<String,String> kafkaTemplate;
+
+    @GetMapping("test/{userName}")
+    public String test(@PathVariable String userName){
+
+        kafkaTemplate.send("notified",userName);
+
+        return "Notified user name "+userName;
     }
 
     @PostMapping
@@ -45,4 +60,6 @@ public class OrderController {
         orderService.deleteOrderById(id);
         return new ResponseEntity<>( HttpStatus.OK);
     }
+
+
 }
